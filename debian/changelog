@@ -1,0 +1,11 @@
+x11proto-randr (1.1.2-1) UNRELEASED; urgency=low
+
+  * First upload to Debian
+
+ -- David Nusinow <dnusinow@debian.org>  Fri, 30 Dec 2005 14:36:13 -0500
+
+x11proto-randr (1.1-1) breezy; urgency=low
+
+  * First x11proto-randr release.
+
+ -- Daniel Stone <daniel.stone@ubuntu.com>  Mon, 16 May 2005 22:10:17 +1000
