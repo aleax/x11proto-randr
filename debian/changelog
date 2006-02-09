@@ -1,3 +1,10 @@
+x11proto-randr (1.1.2-2) experimental; urgency=low
+
+  * Add epoch to versioned Pre-Depends on x11-common to make upgrades
+    from monolithic x11-common work (Closes: #351779).
+
+ -- Michel Dänzer <daenzer@debian.org>  Thu,  9 Feb 2006 16:41:00 +0100
+
 x11proto-randr (1.1.2-1) experimental; urgency=low
 
   * First upload to Debian
