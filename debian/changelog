@@ -1,0 +1,31 @@
+x11proto-randr (1.1.2-4) UNRELEASED; urgency=low
+
+  * Test for obj-$(DEB_BUILD_GNU_TYPE) before creating it during build;
+    idempotency fix. 
+
+ -- Andres Salomon <dilinger@debian.org>  Mon, 17 Jul 2006 00:04:58 -0400
+
+x11proto-randr (1.1.2-3) unstable; urgency=low
+
+  * Upload to unstable
+
+ -- David Nusinow <dnusinow@debian.org>  Thu, 23 Mar 2006 21:36:08 -0500
+
+x11proto-randr (1.1.2-2) experimental; urgency=low
+
+  * Add epoch to versioned Pre-Depends on x11-common to make upgrades
+    from monolithic x11-common work (Closes: #351779).
+
+ -- Michel Dänzer <daenzer@debian.org>  Thu,  9 Feb 2006 16:41:00 +0100
+
+x11proto-randr (1.1.2-1) experimental; urgency=low
+
+  * First upload to Debian
+
+ -- David Nusinow <dnusinow@debian.org>  Fri, 30 Dec 2005 14:36:13 -0500
+
+x11proto-randr (1.1-1) breezy; urgency=low
+
+  * First x11proto-randr release.
+
+ -- Daniel Stone <daniel.stone@ubuntu.com>  Mon, 16 May 2005 22:10:17 +1000
