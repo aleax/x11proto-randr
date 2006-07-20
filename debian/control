@@ -1,0 +1,25 @@
+Source: x11proto-randr
+Section: x11
+Priority: optional
+Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+Uploaders: David Nusinow <dnusinow@debian.org>, Branden Robinson <branden@debian.org>, Fabio M. Di Nitto <fabbione@fabbione.net>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1.0
+
+Package: x11proto-randr-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, x11-common
+Conflicts: libxrandr-dev (<< 6.8.2-21)
+Replaces: libxrandr-dev (<< 6.8.2-21)
+Pre-Depends: x11-common (>= 1:1.0)
+Description: X11 RandR extension wire protocol
+ This package provides the wire protocol for the RandR extension, used to
+ change display properties such as resolution, rotation, reflection, et al,
+ on the fly.
+ .
+ More information about X.Org can be found at:
+ <URL:http://xorg.freedesktop.org>
+ <URL:http://lists.freedesktop.org/mailman/listinfo/xorg>
+ .
+ This module can be found as the module 'proto/Randr' at
+ :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg

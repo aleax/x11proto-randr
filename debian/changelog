@@ -2,9 +2,11 @@ x11proto-randr (1.1.2-4) UNRELEASED; urgency=low
 
   * Test for obj-$(DEB_BUILD_GNU_TYPE) before creating it during build;
     idempotency fix.
-  * Run dh_install w/ --list-missing. 
+  * Run dh_install w/ --list-missing.
+  * Change debhelper build-dep-indep to a normal build-dep, as dh_clean
+    is called inside the clean rule. 
 
- -- Andres Salomon <dilinger@debian.org>  Mon, 17 Jul 2006 01:23:43 -0400
+ -- Andres Salomon <dilinger@debian.org>  Thu, 20 Jul 2006 03:59:46 -0400
 
 x11proto-randr (1.1.2-3) unstable; urgency=low
 
