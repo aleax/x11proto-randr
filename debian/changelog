@@ -1,4 +1,4 @@
-x11proto-randr (1.1.2-4) UNRELEASED; urgency=low
+x11proto-randr (1.1.2-4) unstable; urgency=low
 
   * Test for obj-$(DEB_BUILD_GNU_TYPE) before creating it during build;
     idempotency fix.
@@ -10,7 +10,7 @@ x11proto-randr (1.1.2-4) UNRELEASED; urgency=low
   * Version x11-common pre-dep in -dev package to 1:7.0.0 to match
     the rest of Debian.
 
- -- Andres Salomon <dilinger@debian.org>  Thu, 20 Jul 2006 04:34:43 -0400
+ -- Andres Salomon <dilinger@debian.org>  Fri, 21 Jul 2006 02:57:32 -0400
 
 x11proto-randr (1.1.2-3) unstable; urgency=low
 

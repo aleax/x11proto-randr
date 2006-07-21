@@ -2,7 +2,7 @@ Source: x11proto-randr
 Section: x11
 Priority: optional
 Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
-Uploaders: David Nusinow <dnusinow@debian.org>, Branden Robinson <branden@debian.org>, Fabio M. Di Nitto <fabbione@fabbione.net>
+Uploaders: David Nusinow <dnusinow@debian.org>, Branden Robinson <branden@debian.org>, Fabio M. Di Nitto <fabbione@fabbione.net>, Andres Salomon <dilinger@debian.org>
 Build-Depends: debhelper (>= 4.0.0)
 Standards-Version: 3.7.2.0
 
