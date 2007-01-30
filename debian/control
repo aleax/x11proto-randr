@@ -5,6 +5,7 @@ Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 Uploaders: David Nusinow <dnusinow@debian.org>, Branden Robinson <branden@debian.org>, Fabio M. Di Nitto <fabbione@fabbione.net>, Andres Salomon <dilinger@debian.org>
 Build-Depends: debhelper (>= 4.0.0)
 Standards-Version: 3.7.2
+XS-Vcs-Git: git://git.debian.org/git/pkg-xorg/proto/x11proto-randr
 
 Package: x11proto-randr-dev
 Architecture: all
@@ -20,6 +21,3 @@ Description: X11 RandR extension wire protocol
  More information about X.Org can be found at:
  <URL:http://xorg.freedesktop.org>
  <URL:http://lists.freedesktop.org/mailman/listinfo/xorg>
- .
- This module can be found as the module 'proto/Randr' at
- :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg
