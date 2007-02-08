@@ -5,8 +5,9 @@ x11proto-randr (1.2.0-1) experimental; urgency=low
     debian/control.
   * Install the upstream changelog.
   * Update debian/copyright.
+  * Install randrproto.txt with dh_installdocs.
 
- -- Julien Cristau <jcristau@debian.org>  Thu,  8 Feb 2007 20:32:36 +0100
+ -- Julien Cristau <jcristau@debian.org>  Thu,  8 Feb 2007 20:51:53 +0100
 
 x11proto-randr (1.1.2-4) unstable; urgency=low
 
