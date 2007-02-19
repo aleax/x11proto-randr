@@ -1,3 +1,52 @@
+commit aada204b1fc9ba6461efad3fe6bd032ee98536e1
+Author: Keith Packard <keithp@neko.keithp.com>
+Date:   Sun Feb 18 21:02:30 2007 -0800
+
+    Bump version to 1.2.1.
+    
+    And add copyright to configure.ac file
+
+commit 0e689cecd65f420ec175046e4bb2b5386bf7b7c5
+Author: Keith Packard <keithp@neko.keithp.com>
+Date:   Sun Feb 18 21:02:10 2007 -0800
+
+    Fix wording about requesting ConfigureNotify events.
+
+commit 34ebf25a88972afdc561f4525d02b3fe41ac84bf
+Author: Eric Anholt <eric@anholt.net>
+Date:   Thu Feb 1 15:08:10 2007 -0800
+
+    Fix the size of the padding fields of xRRGetCrtcGamma.
+
+commit 615f8077c55593a2001ca4c84ff3ede5c2c2842a
+Author: Eric Anholt <eric@anholt.net>
+Date:   Tue Jan 9 09:40:47 2007 -0800
+
+    Install the randr protocol description.
+
+commit 335639ba8f0df1364a6807187ba17eeae5b187e4
+Author: Keith Packard <keithp@neko.keithp.com>
+Date:   Thu Nov 30 13:25:35 2006 -0800
+
+    More bugs found by Ian Osgood during the XCB work.
+    
+    ListOutputProperties has no nProperties field.
+    Pad fields not mentioned in Gamma requests.
+    sz_xRROUtputChangeNotifyEvent -> sz_xRROutputChangeNotifyEvent
+
+commit 504556a9f886c84798ae8e0e46896a7c74b95c61
+Merge: c27ece2... 3d521b3...
+Author: Keith Packard <keithp@neko.keithp.com>
+Date:   Thu Nov 30 09:44:20 2006 -0800
+
+    Merge branch 'multi-monitor'
+
+commit 3d521b3d38d10c5ec660d13514ef3e626bef90fa
+Author: Keith Packard <keithp@neko.keithp.com>
+Date:   Thu Nov 30 09:43:10 2006 -0800
+
+    Fix padding bugs discovered in XCB work
+
 commit c27ece25924115448bf9e1dc461d5e7f4112f112
 Merge: 3305f63... 7363d44...
 Author: Eric Anholt <eric@anholt.net>
