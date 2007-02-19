@@ -1,3 +1,10 @@
+x11proto-randr (1.2.1-1) experimental; urgency=low
+
+  * New upstream release.
+  * Install randrproto.txt in the package.
+
+ -- Julien Cristau <jcristau@debian.org>  Mon, 19 Feb 2007 08:46:03 +0100
+
 x11proto-randr (1.2.0-1) experimental; urgency=low
 
   * New upstream release.
