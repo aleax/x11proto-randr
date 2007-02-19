@@ -293,7 +293,7 @@ typedef struct {
 
 typedef struct {
     BYTE	type;
-    CARD8	nProperties;
+    CARD8	pad0;
     CARD16	sequenceNumber B16;
     CARD32	length B32;
     CARD16	nAtoms B16;
@@ -324,7 +324,7 @@ typedef struct {
     BOOL	range;
     BOOL	immutable;
     BYTE	pad1;
-    CARD16	pad2 B16;
+    CARD32	pad2 B32;
     CARD32	pad3 B32;
     CARD32	pad4 B32;
     CARD32	pad5 B32;
@@ -407,7 +407,7 @@ typedef struct {
 
 typedef struct {
     BYTE	type;
-    CARD8	status;
+    CARD8	pad0;
     CARD16	sequenceNumber B16;
     CARD32	length B32;
     RRMode	mode B32;
@@ -516,11 +516,11 @@ typedef struct {
     CARD32	length B32;
     CARD16	size B16;
     CARD16	pad1 B16;
-    CARD16	pad2 B32;
-    CARD16	pad3 B32;
-    CARD16	pad4 B32;
-    CARD16	pad5 B32;
-    CARD16	pad6 B32;
+    CARD32	pad2 B32;
+    CARD32	pad3 B32;
+    CARD32	pad4 B32;
+    CARD32	pad5 B32;
+    CARD32	pad6 B32;
 } xRRGetCrtcGammaSizeReply;
 #define sz_xRRGetCrtcGammaSizeReply	32
 
@@ -539,11 +539,11 @@ typedef struct {
     CARD32	length B32;
     CARD16	size B16;
     CARD16	pad1 B16;
-    CARD16	pad2 B32;
-    CARD16	pad3 B32;
-    CARD16	pad4 B32;
-    CARD16	pad5 B32;
-    CARD16	pad6 B32;
+    CARD32	pad2 B32;
+    CARD32	pad3 B32;
+    CARD32	pad4 B32;
+    CARD32	pad5 B32;
+    CARD32	pad6 B32;
 } xRRGetCrtcGammaReply;
 #define sz_xRRGetCrtcGammaReply		32
 
@@ -608,7 +608,7 @@ typedef struct {
     CARD8 connection;			/* connection status */
     CARD8 subpixelOrder;		/* subpixel order */
 } xRROutputChangeNotifyEvent;
-#define sz_xRROUtputChangeNotifyEvent	32
+#define sz_xRROutputChangeNotifyEvent	32
 
 typedef struct {
     CARD8 type;				/* always evBase + RRNotify */
@@ -624,7 +624,7 @@ typedef struct {
     CARD32 pad3 B32;
     CARD32 pad4 B32;
 } xRROutputPropertyNotifyEvent;
-#define sz_xRROUtputPropertyNotifyEvent	32
+#define sz_xRROutputPropertyNotifyEvent	32
 
 #undef RRModeFlags
 #undef RRCrtc
