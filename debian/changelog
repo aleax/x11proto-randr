@@ -1,3 +1,10 @@
+x11proto-randr (1.2.1-2) unstable; urgency=low
+
+  * Upload to unstable.
+  * Add XS-Vcs-Browser, and remove Fabio from Uploaders with his permission.
+
+ -- Julien Cristau <jcristau@debian.org>  Fri, 20 Apr 2007 06:38:38 +0200
+
 x11proto-randr (1.2.1-1) experimental; urgency=low
 
   * New upstream release.
