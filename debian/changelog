@@ -7,6 +7,9 @@ x11proto-randr (1.2.2-1) UNRELEASED; urgency=low
   [ Julien Cristau ]
   * New upstream release, fixes some typos in the randr protocol spec and
     allows use of randrproto.h in C++ code.
+  * Bump debhelper compat level to 5.
+  * Remove Branden from Uploaders with his permission, and add myself.
+  * Drop the XS- prefix from the Vcs-* control fields.
 
  -- Brice Goglin <bgoglin@debian.org>  Tue, 14 Aug 2007 00:10:59 +0200
 
