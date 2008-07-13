@@ -1,7 +1,12 @@
-x11proto-randr (1.2.1-3) UNRELEASED; urgency=low
+x11proto-randr (1.2.2-1) UNRELEASED; urgency=low
 
+  [ Brice Goglin ]
   * Update the long description.
   * Add URL in debian/copyright.
+
+  [ Julien Cristau ]
+  * New upstream release, fixes some typos in the randr protocol spec and
+    allows use of randrproto.h in C++ code.
 
  -- Brice Goglin <bgoglin@debian.org>  Tue, 14 Aug 2007 00:10:59 +0200
 
