@@ -1,3 +1,10 @@
+x11proto-randr (1.2.99.1-1) UNRELEASED; urgency=low
+
+  * New upstream prerelease.
+  * Build-depend on automake, run autoreconf on build.
+
+ -- Timo Aaltonen <tepsipakki@ubuntu.com>  Wed, 03 Dec 2008 11:45:43 +0200
+
 x11proto-randr (1.2.2-1) unstable; urgency=low
 
   [ Brice Goglin ]

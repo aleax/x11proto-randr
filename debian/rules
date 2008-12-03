@@ -30,9 +30,17 @@ else
 	confflags += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
 endif
 
+.PHONY: autogen
+autogen: autogen-stamp
+autogen-stamp:
+	dh_testdir
 
-build: build-stamp
-build-stamp:
+	autoreconf -vfi
+	touch autogen-stamp
+
+.PHONY: configure
+configure: configure-stamp
+configure-stamp: autogen-stamp
 	dh_testdir
 
 	test -d obj-$(DEB_BUILD_GNU_TYPE) || mkdir obj-$(DEB_BUILD_GNU_TYPE)
@@ -40,6 +48,12 @@ build-stamp:
 	../configure --prefix=/usr --mandir=\$${prefix}/share/man \
 	             --infodir=\$${prefix}/share/info --disable-shared \
 	             $(confflags) CFLAGS="$(CFLAGS)" 
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	dh_testdir
+
 	cd obj-$(DEB_BUILD_GNU_TYPE) && $(MAKE)
 
 	touch build-stamp
@@ -47,13 +61,15 @@ build-stamp:
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
+	rm -f *-stamp
 
 	rm -f config.cache config.log config.status
 	rm -f */config.cache */config.log */config.status
 	rm -f conftest* */conftest*
 	rm -rf autom4te.cache */autom4te.cache
 	rm -rf obj-*
+	rm -f aclocal.m4 configure install-sh missing
+	rm -f Makefile.in
 
 	dh_clean
 
