@@ -1,3 +1,25 @@
+x11proto-randr (1.2.2-1) unstable; urgency=low
+
+  [ Brice Goglin ]
+  * Update the long description.
+  * Add URL in debian/copyright.
+
+  [ Julien Cristau ]
+  * New upstream release, fixes some typos in the randr protocol spec and
+    allows use of randrproto.h in C++ code.
+  * Bump debhelper compat level to 5.
+  * Remove Branden from Uploaders with his permission, and add myself.
+  * Drop the XS- prefix from the Vcs-* control fields.
+
+ -- Julien Cristau <jcristau@debian.org>  Sun, 13 Jul 2008 13:13:12 +0200
+
+x11proto-randr (1.2.1-2) unstable; urgency=low
+
+  * Upload to unstable.
+  * Add XS-Vcs-Browser, and remove Fabio from Uploaders with his permission.
+
+ -- Julien Cristau <jcristau@debian.org>  Fri, 20 Apr 2007 06:38:38 +0200
+
 x11proto-randr (1.2.1-1) experimental; urgency=low
 
   * New upstream release.

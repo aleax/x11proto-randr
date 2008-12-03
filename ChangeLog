@@ -1,3 +1,39 @@
+commit 2be5a52d5f6bdd2aa70efcb06bd99a149c6db6ba
+Author: Adam Jackson <ajax@redhat.com>
+Date:   Wed Jul 2 15:34:31 2008 -0400
+
+    randrproto 1.2.2
+
+commit 9ab3d5cca3cf9a76c6873007b8d4345c838cc297
+Author: Adam Jackson <ajax@redhat.com>
+Date:   Mon Jun 23 14:52:12 2008 -0400
+
+    Bug #16149: Make the field not be named 'delete' in C++ mode.
+    
+    Thanks for the upward compatibility, Bjarne.
+
+commit 2df8499d24d15bfca3c928b681f64b6e8a05f0af
+Author: James Cloos <cloos@jhcloos.com>
+Date:   Thu Dec 6 16:39:05 2007 -0500
+
+    Replace static ChangeLog with dist-hook to generate from git log
+
+commit 3243afaa593f95bb89b1381dac2b920111ce36b1
+Author: Jakob Bornecrantz <wallbraker@gmail.com>
+Date:   Tue Apr 17 14:25:38 2007 -0700
+
+    Correct a copy'n'paste error in RRGetOutputInfo spec text.
+
+commit d1c5739ae19f7cc01a6a5603d3fae93e1f9ee3d1
+Author: Alan Coopersmith <alan.coopersmith@sun.com>
+Date:   Mon Apr 9 14:31:10 2007 -0700
+
+    Delete duplicate B32's in xRRScreenChangeNotifyEvent
+    
+    Caused compiler warnings:
+      "randrproto.h", line 567: warning: syntax error:  empty member declaration
+      "randrproto.h", line 568: warning: syntax error:  empty member declaration
+
 commit aada204b1fc9ba6461efad3fe6bd032ee98536e1
 Author: Keith Packard <keithp@neko.keithp.com>
 Date:   Sun Feb 18 21:02:30 2007 -0800
