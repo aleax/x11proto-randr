@@ -120,7 +120,10 @@ following features are added in this version:
      support made it trivial to add full projective transformations. These
      can be used to scale the screen up/down as well as perform projector
      keystone correct or other effects.
-     
+
+   • Panning. It was removed with RandR 1.2 because the old semantics didn't
+     fit any longer. With RandR 1.3 panning can be specified per crtc.
+
 1.1 Acknowledgements
 
 Our thanks to the contributors to the design found on the xpert mailing
@@ -1116,6 +1119,16 @@ dynamic changes in the display environment.
 	successfully set, the request is ignored and InvalidTime returned in
 	status.
 
+	┌──┳━━━━━━━━━━━━━━┳─────┬ ─ ─ ─ ─ ─ ┐
+	│  ┃     CRTC     ┃     │
+	│  ┃              ┃     │           │
+	│  ┃             X┃→    │
+	│  ┃              ┃     │           │  framebuffer
+	│  ┗━━━━━━━━━━━━━━┛     │
+	│                       │           │
+	│panning area           │
+	└───────────────────────┴ ─ ─ ─ ─ ─ ┘
+
 	'left', 'top', 'width', and 'height' contain the total panning area
 	for this CRTC.  'width' has to be larger than or equal to the CRTC's
 	width or 0, and 'left'+'width' must be within the screen size, else a
@@ -1126,13 +1139,36 @@ dynamic changes in the display environment.
 	RRSetScreenSize will silently enable panning if the screen size is
 	increased. This does not happen if set to 0.
 
+	┌────────┳━━━━━━━━━━━━━━┳ ─ ─ ─ ─ ─ ┐
+	│        ┃     CRTC     ┃
+	│        ┃              ┃           │
+	│        ┃              ┃
+	│        ┃              ┃           │  tracking area
+	│        ┗━━━━━━━━━━━━━━┫     X
+	│               ↓       │     ↓     │
+	│panning area           │
+	└───────────────────────┴ ─ ─ ─ ─ ─ ┘
+
 	'track_left', 'track_top', 'track_width', and 'track_height' contain
 	the pointer area for which the panning region is updated.  For normal
 	use cases it should enclose the panning area minus borders, and is
 	typically set to either the panning area minus borders, or to the
 	total screen size. If set to the total screen size, the CRTC will pan
 	in the remaining axis even if the pointer is outside the panning area
-	on a different CRTC.
+	on a different CRTC, as shown in the figure above. If the pointer is
+	outside the tracking area, the CRTC will not pan. Zero can be used as
+	an alias for the total screen size.
+
+	┌──┳━━━━━━━━━━━━━━┳────────────┐
+	│  ┃     CRTC     ┃            │
+	│  ┃              ┃            │
+	│  ┃              ┃→           │
+	│  ┃           X←→┃            │
+	│  ┃       border_right        │
+	│  ┗━━━━━━━━━━━━━━┛            │
+	│                              │
+	│panning area                  │
+	└──────────────────────────────┘
 
 	'border_left', 'border_top', 'border_right', and 'border_bottom'
 	define the distances from the CRTC borders that will activate panning
@@ -1140,7 +1176,7 @@ dynamic changes in the display environment.
 	when the pointer hits the CRTC borders (behavior of pre-RandR Xserver
 	panning).  If the borders are positive, the screen will pan when the
 	pointer gets close to the CRTC borders, if they are negative, the
-	screen will only pan when the pointer is already way past the CRTC 
+	screen will only pan when the pointer is already way past the CRTC
 	borders.  Negative values might confuse users and disable panning to
 	the very edges of the screen.  Thus they are discouraged.
 	border_left + border_right has to be lower or equal than the CRTC's
@@ -1157,6 +1193,51 @@ dynamic changes in the display environment.
 
 	'new-time-stamp' contains the time at which this request was
 	executed.
+
+┌───
+    RRSetOutputPrimary
+	window: WINDOW
+	output: OUTPUT
+└───
+	Errors: Match, Output, Window
+
+	RRSetOutputPrimary marks 'output' as the primary output for the
+	screen with the same root window as 'window'. This output's CRTC
+	will be sorted to the front of the list in Xinerama and RANDR
+	geometry requests for the benefit of older applications. The
+	default primary output is None, and None is a legal value to pass
+	to RRSetOutputPrimary. This request is expected to be used by
+	desktop environments to mark the screen that should hold the primary
+	menu bar or panel.
+
+	If the named output is not connected to any CRTC, or if the Window
+	and Output are not attached to the same screen, BadMatch is generated.
+	In the latter case, errorValue will be the Window, not the Output.
+
+	As this changes the logical layout of the screen, ConfigureNotify
+	and RRScreenChangeNotify will be generated on the appropriate root
+	window when the primary output is changed by this call. This request
+	also generates RROutputChangeNotify events on the outputs that gained
+	and lost primary status.
+
+	If an output is disconnected asynchronously (eg. due to recabling),
+	the primary status does not change, but RROutputChangeNotify events
+	will be generated if the hardware is capable of detecting this;
+	clients are expected to reconfigure if appropriate.
+
+	If an output is deleted (eg. due to device hotplug), the server will
+	act as though None was passed to RRSetOutputPrimary, including
+	generating the appropriate events.
+
+┌───
+    RRGetOutputPrimary
+	window: WINDOW
+      ▶
+	output: OUTPUT
+└───
+	Errors: Window
+
+	RRGetOutputPrimary returns the primary output for the system.
 
                               ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -1325,7 +1406,7 @@ list of what each version provided:
 	     modes
 
 	1.3: Added cheap version of RRGetScreenResources.  Added CRTC
-	     transformations.  Added panning.
+	     transformations.  Added panning.  Added primary outputs.
 
 Compatibility between 0.0 and 1.0 was *NOT* preserved, and 0.0 clients
 will fail against 1.0 servers. The wire encoding op-codes were
@@ -1334,8 +1415,9 @@ graceful way. Version 1.1 servers and clients are cross compatible with
 1.0. Version 1.1 is considered to be stable and we intend upward
 compatibility from this point. Version 1.2 offers an extended model of the
 system with multiple output support. Version 1.3 adds a cheap version of
-GetScreenResources to avoid expensive DDC operations, and CRTC
-transformations. 1.2 and 1.3 are backward-compatible with 1.1.
+GetScreenResources to avoid expensive DDC operations, CRTC transformations,
+panning, and the primary output concept. 1.2 and 1.3 are backward-compatible
+with 1.1.
 
                               ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -2001,6 +2083,33 @@ A.2.2 Protocol Requests added with version 1.3
 	4	0			reply length
 	4	TIMESTAMP		new timestamp
 	20				unused
+└───
+
+┌───
+    RRSetOutputPrimary
+	1	CARD8			major opcode
+	1	30			RandR opcode
+	2	3			length
+	4	WINDOW			window
+	4	OUTPUT			output
+└───
+    
+┌───
+    RRGetOutputPrimary
+	1	CARD8			major opcode
+	1	31			RandR opcode
+	2	2			length
+	4	WINDOW			window
+      ▶
+	1	1			Reply
+	1				unused
+	2	CARD16			sequence number
+	4	CARD32			length
+	4	OUTPUT			output
+	4	CARD32			pad1
+	4	CARD32			pad2
+	4	CARD32			pad3
+	4	CARD32			pad4
 └───
 
 A.3 Protocol Events

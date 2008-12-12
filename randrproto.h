@@ -567,29 +567,12 @@ typedef struct {
  * Additions for V1.3
  */
 
-typedef struct {
-    CARD8   reqType;
-    CARD8   randrReqType;
-    CARD16  length B16;
-    Window  window B32;
-} xRRGetScreenResourcesCurrentReq;
-#define sz_xRRGetScreenResourcesCurrentReq 8
+typedef xRRGetScreenResourcesReq xRRGetScreenResourcesCurrentReq;
 
-typedef struct {
-    BYTE	type;
-    CARD8	pad;
-    CARD16	sequenceNumber B16;
-    CARD32	length B32;
-    Time	timestamp B32;
-    Time	configTimestamp B32;
-    CARD16	nCrtcs B16;
-    CARD16	nOutputs B16;
-    CARD16	nModes B16;
-    CARD16	nbytesNames B16;
-    CARD32	pad1 B32;
-    CARD32	pad2 B32;
-} xRRGetScreenResourcesCurrentReply;
-#define sz_xRRGetScreenResourcesCurrentReply	32
+#define sz_xRRGetScreenResourcesCurrentReq sz_xRRGetScreenResourcesReq
+
+typedef xRRGetScreenResourcesReply xRRGetScreenResourcesCurrentReply;
+#define sz_xRRGetScreenResourcesCurrentReply	sz_xRRGetScreenResourcesReply
 
 typedef struct {
     CARD8		reqType;
@@ -630,6 +613,37 @@ typedef struct {
 } xRRGetCrtcTransformReply;
 
 #define sz_xRRGetCrtcTransformReply	96
+
+typedef struct {
+    CARD8	reqType;
+    CARD8	randrReqType;
+    CARD16	length B16;
+    Window	window B32;
+    RROutput	output B32;
+} xRRSetOutputPrimaryReq;
+#define sz_xRRSetOutputPrimaryReq	12
+
+typedef struct {
+    CARD8	reqType;
+    CARD8	randrReqType;
+    CARD16	length B16;
+    Window	window B32;
+} xRRGetOutputPrimaryReq;
+#define sz_xRRGetOutputPrimaryReq	8
+
+typedef struct {
+    BYTE	type;
+    CARD8	pad;
+    CARD16	sequenceNumber B16;
+    CARD32	length B32;
+    RROutput	output B32;
+    CARD32	pad1 B32;
+    CARD32	pad2 B32;
+    CARD32	pad3 B32;
+    CARD32	pad4 B32;
+    CARD32	pad5 B32;
+} xRRGetOutputPrimaryReply;
+#define sz_xRRGetOutputPrimaryReply	32
 
 /*
  * event
