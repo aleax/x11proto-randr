@@ -1,4 +1,4 @@
-x11proto-randr (1.2.99.2-1) UNRELEASED; urgency=low
+x11proto-randr (1.2.99.3-1) UNRELEASED; urgency=low
 
   * New upstream prerelease.
   * Build-depend on automake, run autoreconf on build.
