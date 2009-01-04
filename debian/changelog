@@ -1,7 +1,12 @@
 x11proto-randr (1.2.99.3-1) UNRELEASED; urgency=low
 
+  [ Timo Aaltonen ]
   * New upstream prerelease.
   * Build-depend on automake, run autoreconf on build.
+
+  [ Julien Cristau ]
+  * debian/rules cleanup: we don't build anything, so no need to set CFLAGS
+    and DEB_{HOST,BUILD}_*.
 
  -- Timo Aaltonen <tepsipakki@ubuntu.com>  Wed, 03 Dec 2008 11:45:43 +0200
 
