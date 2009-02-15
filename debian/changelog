@@ -1,3 +1,9 @@
+x11proto-randr (1.2.99.3-2) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Julien Cristau <jcristau@debian.org>  Sun, 15 Feb 2009 21:38:57 +0100
+
 x11proto-randr (1.2.99.3-1) experimental; urgency=low
 
   [ Timo Aaltonen ]
