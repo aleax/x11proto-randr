@@ -1,3 +1,53 @@
+commit 94e22fecc66590f81ca280517505c721a5f54497
+Author: Matthias Hopf <mhopf@suse.de>
+Date:   Fri Mar 6 15:03:09 2009 +0100
+
+    Bump to 1.3.0
+
+commit 5cc58adb620d37694a9d57cd26c40b4cb2d1de68
+Author: Matthias Hopf <mhopf@suse.de>
+Date:   Wed Feb 25 17:08:45 2009 +0100
+
+    Bump to 1.2.99.4
+
+commit 7bd01756e684bb841f32fa30832eb7980f92ac9c
+Author: Adam Jackson <ajax@redhat.com>
+Date:   Tue Feb 17 13:58:19 2009 -0500
+
+    Zero reply from GetPanning means panning not supported.
+    
+    Don't throw BadRRCrtc for this case, that's just mean.
+
+commit 1c7e20d115bc470479f32afd703ca7966754c54f
+Author: Paulo Cesar Pereira de Andrade <pcpa@mandriva.com.br>
+Date:   Tue Jan 27 20:06:28 2009 -0200
+
+    Janitor: Correct make distcheck and dont distribute autogen.sh
+
+commit 1ff5e2cdfa2636317099a0917c9819ff4a81b025
+Author: Maarten Maathuis <madman2003@gmail.com>
+Date:   Tue Dec 16 23:35:49 2008 +0100
+
+    Fix typo in 83f3f29dd3ac5d3875b5edef5805d6adb6a02698.
+
+commit 83f3f29dd3ac5d3875b5edef5805d6adb6a02698
+Author: Matthias Hopf <mhopf@suse.de>
+Date:   Tue Dec 16 18:20:00 2008 +0100
+
+    Add standard property name defines.
+
+commit 6a480445e94c39df2bc9663e7590ab41cd17c465
+Author: Matthias Hopf <mhopf@suse.de>
+Date:   Tue Dec 16 18:13:48 2008 +0100
+
+    Should read "EDID", not "EdidData".
+
+commit 2aae5ec72ea285a051deaae98515587e1c77d7a5
+Author: Matthias Hopf <mhopf@suse.de>
+Date:   Tue Dec 16 18:09:08 2008 +0100
+
+    Add description of standard properties.
+
 commit 3fdbdc2b0a971db7497c6e03e215fd19ec400ce9
 Author: Matthias Hopf <mhopf@suse.de>
 Date:   Fri Dec 12 12:41:21 2008 +0100
@@ -17,7 +67,7 @@ Date:   Wed Dec 10 11:15:48 2008 -0500
     Add [GS]etOutputPrimary
 
 commit 1334866b4aa025bce745140aa0f71f6493408ffa
-Merge: ad65017... e719120...
+Merge: ad65017 e719120
 Author: Keith Packard <keithp@keithp.com>
 Date:   Tue Dec 9 20:59:47 2008 -0800
 
@@ -92,7 +142,7 @@ Date:   Wed Nov 26 09:24:36 2008 -0800
     Update to version 1.2.99.1
 
 commit 6c17940a7960885695aa6033de58c3cd2bb6fb79
-Merge: c998b46... 8793429...
+Merge: c998b46 8793429
 Author: Keith Packard <keithp@keithp.com>
 Date:   Mon Nov 24 16:22:11 2008 -0800
 
@@ -232,7 +282,7 @@ Date:   Thu Nov 30 13:25:35 2006 -0800
     sz_xRROUtputChangeNotifyEvent -> sz_xRROutputChangeNotifyEvent
 
 commit 504556a9f886c84798ae8e0e46896a7c74b95c61
-Merge: c27ece2... 3d521b3...
+Merge: c27ece2 3d521b3
 Author: Keith Packard <keithp@neko.keithp.com>
 Date:   Thu Nov 30 09:44:20 2006 -0800
 
@@ -245,7 +295,7 @@ Date:   Thu Nov 30 09:43:10 2006 -0800
     Fix padding bugs discovered in XCB work
 
 commit c27ece25924115448bf9e1dc461d5e7f4112f112
-Merge: 3305f63... 7363d44...
+Merge: 3305f63 7363d44
 Author: Eric Anholt <eric@anholt.net>
 Date:   Mon Nov 27 15:31:33 2006 -0800
 
