@@ -24,8 +24,8 @@ configure: configure-stamp
 configure-stamp: autogen-stamp
 	dh_testdir
 
-	mkdir -p obj-$(DEB_BUILD_GNU_TYPE)
-	cd obj-$(DEB_BUILD_GNU_TYPE) && \
+	mkdir -p build
+	cd build && \
 	../configure --prefix=/usr --mandir=\$${prefix}/share/man \
 	             --infodir=\$${prefix}/share/info --disable-shared
 	touch configure-stamp
@@ -34,7 +34,7 @@ build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 
-	cd obj-$(DEB_BUILD_GNU_TYPE) && $(MAKE)
+	cd build && $(MAKE)
 
 	touch build-stamp
 
@@ -47,7 +47,7 @@ clean:
 	rm -f */config.cache */config.log */config.status
 	rm -f conftest* */conftest*
 	rm -rf autom4te.cache */autom4te.cache
-	rm -rf obj-*
+	rm -rf build
 	rm -f aclocal.m4 configure install-sh missing
 	rm -f config.guess config.sub
 	rm -f Makefile.in
@@ -60,7 +60,7 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	cd obj-$(DEB_BUILD_GNU_TYPE) && $(MAKE) DESTDIR=$(CURDIR)/debian/tmp PACKAGE=$(PACKAGE) install
+	cd build && $(MAKE) DESTDIR=$(CURDIR)/debian/tmp PACKAGE=$(PACKAGE) install
 
 # Build architecture-independent files here.
 binary-indep: build install
