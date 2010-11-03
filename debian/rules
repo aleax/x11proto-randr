@@ -27,7 +27,7 @@ configure-stamp: autogen-stamp
 	mkdir -p build
 	cd build && \
 	../configure --prefix=/usr --mandir=\$${prefix}/share/man \
-	             --infodir=\$${prefix}/share/info --disable-shared
+	             --infodir=\$${prefix}/share/info
 	touch configure-stamp
 
 build: build-stamp
