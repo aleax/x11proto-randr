@@ -1,3 +1,57 @@
+commit 0d32bb0780db35cec31e423faffa7061ec3e697f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Dec 6 22:39:07 2010 -0800
+
+    Define new semantics for scanout pixmap destruction.
+    
+    This is not yet implemented in the X server...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3e28d3098faa1a420cd0eb0474b2959cecc8813a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Dec 6 10:01:21 2010 -0800
+
+    Fix spelling errors, add description of SCANOUTPIXMAPINFO fields.
+    
+    Review results from Aaron Plattner.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ebab32deea654d2ceb0538177e78d8ad48cf2a82
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Dec 5 23:22:26 2010 -0800
+
+    Add some informative text about the reasons for the PCP and ST bits
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dd14a2275521b4cc50a588c95cc34cca7db51a91
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Dec 5 20:31:18 2010 -0800
+
+    RandR version 1.4 additions
+    
+    This adds the specification and protocol header definitions for the
+    RandR 1.4 protocol changes, including
+    
+     * Per crtc pixmaps and pixmap origins
+     * Sprite position and image transforms
+     * SetCrtcConfigs request
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1325b011247e52cd8ffd0ca96408d77ea22ffaaa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Dec 5 20:30:43 2010 -0800
+
+    Whitespace cleanups in randrproto.txt
+    
+    This just eliminates some ugly space/tab combos
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+    Reviewed-by: Cyril Brulebois <kibi@debian.org>
+
 commit 75b7c5feed818291c8ba8ac1ee5b6a6ee4b61851
 Author: Alan Coopersmith <alan.coopersmith@oracle.com>
 Date:   Fri Oct 29 23:12:30 2010 -0700
