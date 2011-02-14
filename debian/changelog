@@ -3,6 +3,7 @@ x11proto-randr (1.3.99.1-1) UNRELEASED; urgency=low
   * New git snapshot.
   * Remove Andres Salomon and David Nusinow from Uploaders.  Thanks for your
     work!
+  * debian/rules: stop using touch for stampfiles, random whitespace cleanup.
 
  -- Julien Cristau <jcristau@debian.org>  Mon, 03 Jan 2011 20:17:46 +0100
 
