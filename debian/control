@@ -15,6 +15,7 @@ Vcs-Browser: http://git.debian.org/?p=pkg-xorg/proto/x11proto-randr.git
 Package: x11proto-randr-dev
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: foreign
 Description: X11 RandR extension wire protocol
  This package provides development headers describing the wire protocol
  for the RandR extension, used to change display properties such as
