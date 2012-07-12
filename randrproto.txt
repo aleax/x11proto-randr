@@ -1,6 +1,6 @@
 	       The X Resize, Rotate and Reflect Extension
-			     Version 1.3.1
-			       2009-10-5
+			     Version 1.4.0
+			       2012-07-03
 
 			      Jim Gettys
 			   Jim.Gettys@hp.com
@@ -105,11 +105,6 @@ the hardware will probably impose restrictions on the possible
 configurations. The protocol doesn't try to describe these restrictions,
 instead it provides a mechanism to find out what combinations are supported.
 
-For instance, dual-link DVI gangs two CRTC outputs together to provide higher
-bandwidth for large resolution screens. This is exposed in RandR by
-requiring that nothing be connected to the second CRTC when driving a high
-resolution screen on the first.
-
 1.3 Introduction to version 1.3 of the extension
 
 Version 1.3 builds on the changes made with version 1.2 and adds some new
@@ -126,50 +121,33 @@ following features are added in this version:
 
 1.4 Introduction to version 1.4 of the extension
 
-Version 1.4 adds a couple more capabilities to further expose the
-underlying hardware to clients
+Version 1.4 adds an optional Border property.
 
-   • Per-crtc pixmaps. This provides for multiple scan-out buffers
-     which applications can create and assign to arbitrary collections
-     of crtcs.
+   • An optional Border property. This property allows a client to
+     specify that the viewport of the CRTC is smaller than the active
+     display region described its mode.  This is useful, for example,
+     for compensating for the overscan behavior of certain
+     televisions.
 
-   • Sprite position and image transforms. These provide a projective
-     transform for both the hot spot location and the sprite image
-     itself for each CRTC.
+Version 1.4 adds a new object called a provider object. A provider object
+represents a GPU or virtual device providing services to the X server.
+Providers have a set of abilities and a set of possible roles.
 
-   • RRSetCrtcConfigs request. This supplies a set of
-     crtc configurations to the server that must be applied together
-     or not at all. This can reduce screen flicker while also
-     providing the server a complete configuration for appropriate
-     resource management.
+Provider objects are used to control multi-GPU systems. Provider roles can
+be dynamically configured to provide support for:
 
-The first two additions, per-crtc pixmaps and sprite transforms are
-designed to solve two problems:
+ 1) Output slaving: plug in a USB device, but have its output rendered
+ using the main GPU. On some dual-GPU laptops, the second GPU isn't
+ connected to the LVDS panel, so we need to use the first GPU as an output
+ slave for the second GPU. 
 
- 1) Screen transforms. The software transform code in the X server
-    uses a shadow frame buffer, adding another copy to every graphics
-    operation. Worse, the server has no idea about when clients are
-    done drawing a frame, so the user gets additional latency and
-    judder.
+ 2) offload - For dual-GPU laptops, allow direct rendered applications to be run
+ on the second GPU and display on the first GPU.
 
-    The goal is to move this operation out to the compositing manager
-    which already deals with an extra copy of the frame buffer for
-    many operations. Have the compositing manager create and draw to a
-    separate pixmap for scanout. It can perform whatever transforms
-    are required to get the image in the right orientation for the
-    user.
+ 3) GPU switching - Allow switching between two GPUs as the main screen
+ renderer.
 
- 2) Hardware scanout engine size limits. With a single scanout buffer
-    for the entire screen, it's possible for the user to ask for a
-    configuration which requires that scanout buffer to be larger than
-    the hardware is capable of scanning out from. Again, having the
-    compositing manager create a pixmap for each CRTC will allow for
-    any configuration where monitor position within the virtual space
-    isn't limited by the scanout limits.
-
-In both of these cases, the Sprite transforms are necessary to ensure
-that the sprite appears at the desired spot on each CRTC and with the
-right shape.
+ 4) multiple GPU rendering - This replaces Xinerama.
 
 1.99 Acknowledgements
 
@@ -184,6 +162,7 @@ David Dawes for XFree86 DDX integration work
 Thomas Winischhofer for the hardware-accelerated SiS rotation implementation
 Matthew Tippett and Kevin Martin for splitting outputs and CRTCs to more
 fully expose what video hardware can do
+Dave Airlie for the 1.4.0 protocol changes.
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -249,6 +228,8 @@ CRTC
 	A value for a CRTC argument does not name a defined CRTC.
 Mode
 	A value for a MODE argument does not name a defined MODE.
+Provider
+	A value for a PROVIDER argument does not name a defined PROVIDER.
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -297,7 +278,10 @@ ROTATION { Rotate_0
 RRSELECTMASK { RRScreenChangeNotifyMask
 	       RRCrtcChangeNotifyMask (New in version 1.2)
 	       RROutputChangeNotifyMask (New in version 1.2)
-	       RROutputPropertyNotifyMask (New in version 1.2) }
+	       RROutputPropertyNotifyMask (New in version 1.2)
+	       RRProviderChangeNotifyMask (New in version 1.4)
+	       RRProviderPropertyNotifyMask (New in version 1.4)
+	       RRResourceChangeNotifyMask (New in version 1.4) }
 
 SIZEID { CARD16 }
 
@@ -349,68 +333,16 @@ REFRESH { rates: LISTofCARD16 }
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
-5.4. Protocol Types added in version 1.4 of the extension
+5.5. Protocol Types added in version 1.4 of the extension
 
-SCANOUTPIXMAPINFO { format: PICTFORMAT
-		    maxWidth, maxHeight: CARD16
-		    rotations: SETofROTATION }
+PROVIDER { XID }
 
-	'format' is the format of the pixels within the scanout
-	pixmap. Only 'Direct' formats are supported, this will never
-	be an 'Indexed' format.
-
-	'maxWidth' and 'maxHeight' define the largest supported
-	scanout pixmap. There is no minimum size; scanout pixmaps down
-	to 1x1 may be created.
-
-	'rotations' lists the set of rotations which can be provided
-	without additional latency or memory usage within the
-	environment. This typically means that they are supported
-	directly by the hardware. It is expected that a compositing
-	manager will perform other transforms as a part of the
-	compositing process in conjunction with the sprite transforms
-	described in this extension.
-
-CRTCCONFIG { crtc: CRTC
-	     x, y: INT16
-	     mode: MODE
-	     rotation: ROTATION
-	     sprite-position-transform: TRANSFORM
-	     sprite-image-transform: TRANSFORM
-	     outputs: LISTofOUTPUT
-	     pixmap: PIXMAP, None or CurrentScanoutPixmap
-	     pixmap-x, pixmap-y: INT16 }
-
-	The sprite-position-transform and sprite-image-transform
-	values are used as in the RRSetCrtcSpriteTransform request
-	position-transform and image-transform parameters.
-
-	'pixmap' specifies the origin of the pixel data to be presented on
-	'crtc'. If 'pixmap' is None, then data will be presented from
-	the screen pixmap. If 'pixmap' is 'CurrentScanoutPixmap', then
-	whatever source is currently in use will remain in use, whether
-	that is the screen pixmap or some other allocated scanout pixmap.
-
-	'pixmap-x' and 'pixmap-y' specify the origin of the scanout
-	data within the pixmap, the area from that location to
-	pixmap-x + width-of(mode), pixmap-y + height-of(mode) is what
-	will be seen on the connected outputs.
-
-	The pixmap value must specify a scanout pixmap as created by
-	RRCreateScanoutPixmap, or a Match error results.
-
-	The specified pixmap must be at least as large as the area to
-	be scanned out, or a Match error results.
-
-	The specified pixmap must have had the specified 'rotation'
-	included as a part of its creation paramaeters, or a Match
-	error results.
-
-	If 'pixmap' is destroyed while still being used as a scanout
-	pixmap, then the associated CRTC will have its scanout pixmap
-	set back to None, the CRTC origin set back to 0,0 (to make
-	sure it fits) and the screen pixmap width and height increased
-	to be at least as big as the current CRTC mode.
+PROVIDER_CAPS { SourceOutput, SinkOutput, SourceOffload, SinkOffload }
+	Capabilties for this provider:
+	SourceOutput: This device can source output buffers.
+	SinkOutput: This device can sink output buffers.
+	SourceOffload: This device can source offload buffers.
+	SinkOffload: This device can sink offload buffers.
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -472,6 +404,20 @@ The name of this extension is "RANDR".
 	If 'enable' contains RROutputPropertyNotifyMask,
 	RROutputPropertyNotify events will be sent when properties change on
 	this output.
+
+	New for version 1.4:
+
+	If 'enable' contains RRProviderChangeNotifyMask,
+	RRProviderChangeNotify events will be sent whenever the role for a
+	provider object has changed.
+
+	If 'enable' contains RRProviderPropertyNotifyMask,
+	RRProviderPropertyNotify events will be sent when properties change
+	on a provider object.
+
+	If 'enable' contains RRResourceChangeNotifyMask,
+	RRResourceChangeNotify events will be sent whenever the set of
+	available RandR resources associated with the screen has changed.
 
 ┌───
     RRSetScreenConfig
@@ -733,7 +679,7 @@ dynamic changes in the display environment.
     RRListOutputProperties
 	output:OUTPUT
       ▶
-	atoms: LISTof ATOM
+	atoms: LISTofATOM
 └───
 	Errors: Output
 
@@ -980,8 +926,8 @@ dynamic changes in the display environment.
 
 	'width' and 'height' indicate the size of the area within the screen
 	presented by this CRTC. This may be different than the size of the
-	mode due to rotation. They will be set to 0 when the CRTC
-	is disabled.
+	mode due to rotation, the projective transform, and the Border property
+	described below.  They will be set to 0 when the CRTC is disabled.
 
 	'mode' indicates which mode is active, or None indicating that the
 	CRTC has been disabled and is not displaying the screen contents.
@@ -1350,92 +1296,230 @@ dynamic changes in the display environment.
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
-7.3. Extension Requests added in version 1.4 of the extension.
+7.4 Extension Requests added in version 1.4 of the extension.
 
 ┌───
-    RRQueryScanoutPixmaps
-	window: WINDOW
-      ▶
-	infos: LISTofSCANOUTPIXMAPINFO
+    RRGetProviders
+	window : WINDOW
+     ▶
+	timestamp: TIMESTAMP
+	providers: LISTofPROVIDER
 └───
 	Errors: Window
 
-	This request returns information about the server support for
-	alternate scanout pixmaps. For each pictformat, there is a set
-	of rotations and a maximum supported size. The rotations here
-	are those provided by the scanout hardware itself, not by
-	software emulation.
+	RRGetPRoviders returns the list of providers connected to the screen
+	associated with 'window'.
+
+	'timestamp' indicates when the configuration was last set.
+
+	'providers' contains the list of PROVIDERs associated with the
+	screen.
 
 ┌───
-    RRCreateScanoutPixmap
-	pixmap: PIXMAP
-	drawable: DRAWABLE
-	width, height: CARD16
-	format: PICTFORMAT
-	rotations: SETofROTATION
+    RRGetProviderInfo
+	provider: PROVIDER
+     ▶
+	capabilities: PROVIDER_CAPS
+	name: STRING
+	crtcs: LISTofCRTC
+	outputs: LISTofOUTPUT
+	associated_providers: LISTofPROVIDERS
+	associated_provider_capability: LISTofPROVIDER_CAPS
 └───
-	Errors: Drawable, Match, Value
+	Errors: Provider
 
-	Creates a pixmap which can subsequently be used as a scanout
-	buffer for the screen associated with 'drawable'. 'rotations'
-	is the set of rotation values which may be used with the
-	resulting scanout buffer when it is associated with a CRTC.
+	RRGetProviderInfo return information about the specified provider.
+	The capabilites of the current provider are returned, along with
+	the list of providers currently associated with this provider and
+	the capability they are associated with. It also provides the list
+	of crtcs and outputs that this provider is responsible for.
 
-	'format' must be one of the supported scanout formats, or a
-	Match error results.
-
-	'width' and 'height' must be within the supported range for
-	the specified format or a Value error results.
-
-	'rotations' must be a subset of those supported for the
-	specified format or a Match error results.
+	'name' is a UTF-8 encoded string to be presented to the user to
+	indicate the device or driver supplied name.
 
 ┌───
-    RRSetCrtcSpriteTransform
-	crtc: CRTC
-	position-transform: TRANSFORM
-	image-transform: TRANSFORM
+    RRSetProviderOffloadSink
+	provider: PROVIDER
+	sink_provider: PROVIDER
+     ▶
 └───
-	Sets the sprite transforms for the specified crtc, any sprites
-	presented on this crtc will have their positions transformed
-	by the position-transform matrix. Sprite images displayed on the crtc
-	will be transformed by the image-transform matrix.
+	Errors: Provider
+
+	RRSetOffloadSink sets the offload sink for this provider to the
+	specified provider.
 
 ┌───
-    RRGetCrtcSpriteTransform
-	crtc: CRTC
+    RRSetProviderOutputSource
+	provider: PROVIDER
+	source_provider: PROVIDER
+     ▶
+└───
+	Errors: Provider
+
+	RRSetOutputSource sets the output source for this provider to the
+	specified provider.
+
+┌───
+    RRListProviderProperties
+	provider:PROVIDERS
       ▶
-	position-transform: TRANSFORM
-	image-transform: TRANSFORM
+	atoms: LISTofATOM
 └───
-	Gets the sprite transforms for the specified crtc.
+	Errors: Provider
+
+	This request returns the atoms of properties currently defined on
+	the provider.
 
 ┌───
-    RRSetCrtcConfigs
-	drawable: DRAWABLE
-	screen-pixmap-width: CARD16
-	screen-pixmap-height: CARD16
-	screen-width: CARD16
-	screen-height: CARD16
-	width-in-millimeters: CARD32
-	height-in-millimeters: CARD32
-	configs: LISTofCRTCCONFIG
+    RRQueryProviderProperty
+	provider: PROVIDER
+	property: ATOM
       ▶
-	status: RRCONFIGSTATUS
+	pending: BOOL
+	range: BOOL
+	immutable: BOOL
+	valid-values: LISTofINT32
 └───
-	Errors: Value, Match
+	Errors: Name, Atom, Provider
 
-	This works much like RRSetScreenSize followed by a sequence of
-	RRSetCrtcConfig, except that the entire configuration is set
-	in a single operation, either succeeding or failing without
-	any partial execution.
+	If the specified property does not exist for the specified provider,
+	then a Name error is returned.
 
-	In addition to the pre-1.4 semantics, this request adds the
-	ability to specific a scanout pixmap for each crtc, and
-	integrates the 1.4 sprite transform request as well.
+	If 'pending' is TRUE, changes made to property values with
+	RRChangeProviderProperty will be saved in the pending property value
+	and be automatically copied to the current value on the next
+	RRSetCrtcConfig request on a crtc attached to that provider.
+	If 'pending' is	FALSE, changes are copied immediately.
+
+	If 'range' is TRUE, then the valid-values list will contain
+	precisely two values indicating the minimum and maximum allowed
+	values. If 'range' is FALSE, then the valid-values list will contain
+	the list of possible values; attempts to set other values will
+	result in a Value error.
+
+	If 'immutable' is TRUE, then the property configuration cannot be
+	changed by clients. Immutable properties are interpreted by the X
+	server.
+
+┌───
+    RRConfigureProviderProperty
+	provider: PROVIDER
+	property: ATOM
+	pending: BOOL
+	range: BOOL
+	valid-values: LISTofINT32
+└───
+	Errors: Access, Name, Atom, Provider
+
+	If the specified property is 'immutable', an Access error is
+	returned.
+
+	Otherwise, the configuration of the specified property is changed to
+	the values provided in this request.
+
+	If the specified property does not exist for the specified provider,
+	it is created with an empty value and None type.
+
+┌───
+    RRChangeProviderProperty
+	provider: PROVIDER
+	property, type: ATOM
+	format: {8, 16, 32}
+	mode: { Replace, Prepend, Append }
+	data: LISTofINT8 or LISTofINT16 or LISTofINT32
+└───
+	Errors: Alloc, Atom, Match, Value, Provider
+
+	This request alters the value of the property for the specified
+	provider. If the property is marked as a 'pending' property, only the
+	pending value of the property is changed. Otherwise, changes are
+	reflected in both the pending and current values of the property.
+	The type is uninterpreted by the server.  The format specifies
+	whether the data should be viewed as a list of 8-bit, 16-bit, or
+	32-bit quantities so that the server can correctly byte-swap as
+	necessary.
+
+	If the mode is Replace, the previous property value is discarded.
+	If the mode is Prepend or Append, then the type and format must
+	match the existing property value (or a Match error results).  If
+	the property is undefined, it is treated as defined with the correct
+	type and format with zero-length data.
+
+	For Prepend, the data is tacked on to the beginning of the existing
+	data, and for Append, it is tacked on to the end of the existing data.
+
+	This request generates a ProviderPropertyNotify
+
+	The lifetime of a property is not tied to the storing client.
+	Properties remain until explicitly deleted, until the provider is
+	destroyed, or until server reset (see section 10).
+
+	The maximum size of a property is server-dependent and may vary
+	dynamically.
+┌───
+    RRDeleteProviderProperty
+	provider: Provider
+	property: ATOM
+└───
+	Errors: Atom, Provider
+
+	This request deletes the property from the specified provider if the
+	property exists and generates a ProviderPropertyNotify event unless
+	the property does not exist.
+
+┌───
+    RRGetProviderProperty
+	provider: PROVIDER
+	property: ATOM
+	type: ATOM or AnyPropertyType
+	long-offset, long-length: CARD32
+	delete: BOOL
+	pending: BOOL
+      ▶
+	type: ATOM or None
+	format: {0, 8, 16, 32}
+	bytes-after: CARD32
+	value: LISTofINT8 or LISTofINT16 or LISTofINT32
+└───
+	Errors: Atom, Value, Provider
+
+	If the specified property does not exist for the specified provider,
+	then the return type is None, the format and bytes-after are zero,
+	and the value is empty.  The delete argument is ignored in this
+	case.
+
+	If the specified property exists but its type does not match the
+	specified type, then the return type is the actual type of the
+	property, the format is the actual format of the property (never
+	zero), the bytes-after is the length of the property in bytes (even
+	if the format is 16 or 32), and the value is empty.  The delete
+	argument is ignored in this case.
+
+	If the specified property exists and either AnyPropertyType is
+	specified or the specified type matches the actual type of the
+	property, then the return type is the actual type of the property,
+	the format is the actual format of the property (never zero), and
+	the bytes-after and value are as follows, given:
+
+		N = actual length of the stored property in bytes
+				  (even if the format is 16 or 32)
+		I = 4 × offset
+		T = N - I
+		L = MINIMUM(T, 4 × long-length)
+		A = N - (I + L)
+
+	If 'pending' is true, and if the property holds a pending value,
+	then the value returned will be the pending value of the property
+	rather than the current value.  The returned value starts at byte
+	index I in the property (indexing from 0), and its length in bytes
+	is L.  However, it is a Value error if long-offset is given such
+	that L is negative.  The value of bytes-after is A, giving the
+	number of trailing unread bytes in the stored property.  If delete
+	is True and the bytes-after is zero, the property is also deleted
+	from the provider, and a RRProviderPropertyNotify event is generated.
+
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
-
 8. Extension Events
 
 Clients MAY select for ConfigureNotify on the root window to be
@@ -1544,8 +1628,8 @@ factors, such as re-cabling a monitor, etc.
 	rotation: ROTATION;		new rotation
 	x: INT16			x position of CRTC within screen
 	y: INT16			y position of CRTC within screen
-	width: CARD16			width of new mode
-	height: CARD16			height of new mode
+	width: CARD16			width of new configuration
+	height: CARD16			height of new configuration
 └───
 	This event is generated whenever the CRTC configuration is changed
 	and sent to requesting clients. 'timestamp' indicates when the
@@ -1553,7 +1637,9 @@ factors, such as re-cabling a monitor, etc.
 	event. 'mode' is the new mode, or None if the crtc is disabled.
 	'x' and 'y' mark the location in the screen where this CRTC
 	is reading data. 'width' and 'height' indicate the size of the
-	mode. 'x', 'y, 'width' and 'height' are all zero when 'mode' is None.
+	CRTC viewport, which is the mode size adjusted by the optional
+	Border output property described below. 'x', 'y, 'width' and
+	'height' are all zero when 'mode' is None.
 
 	This event is sent whenever the monitor's configuration changes
 	or if a new monitor configuration becomes available that was
@@ -1569,6 +1655,56 @@ factors, such as re-cabling a monitor, etc.
 	that might occur on log-in, where many applications start up
 	just at the time when a display manager or log in script might
 	be changing the monitor size or configuration.
+
+8.2 Events added in version 1.4 of the RandR extension
+
+┌───
+    RRProviderChangeNotify:
+	timestamp: TIMESTAMP		time screen was reconfigured
+	config-timestamp: TIMESTAMP	time available config data was changed
+	window: WINDOW			window requesting notification
+	provider: PROVIDER		provider affected by change
+	role: CRTC			new role for provider
+└───
+
+	This event is generated whenever the role for a provider has changed
+	and is sent to requesting clients. 'timestamp' indicates when the
+	provider configuration was changed by a client.
+	'config-timestamp' says when the last time the available
+	configurations changed. 'root' is the root of the screen the change
+	occurred on, 'window' is window selecting for this event. The
+	precise change can be detected by examining the new state of the
+	system.
+
+┌───
+    RRProviderPropertyNotify:
+	window: WINDOW			window requesting notification
+	provider: PROVIDER		providre affected by change
+	atom: ATOM			affected property
+	time: TIMESTAMP			time property was changed
+	state: { NewValue, Deleted }	new property state
+└───
+
+	This event is reported to clients selecting RRProviderPropertyChange
+	on the window and is generated with state NewValue when a property
+	of the window is changed using RRChangeProviderProperty even when
+	adding zero-length data and when replacing all or part of a property
+	with identical data.  It is generated with state Deleted when a
+	property of the window is deleted using either
+	RRDeleteProviderProperty or RRGetProviderProperty.  The timestamp
+	indicates the server time when the property was changed.
+
+┌───
+    RRResourceChangeNotify:
+	window: WINDOW			window requesting notification
+	time: TIMESTAMP			time property was changed
+└───
+
+	This event is reported to clients selecting RRResourceChange
+	on the window and is generated whenever the set of available
+	RandR resources associated with the screen has changed, either
+	created or destroyed. Querying the list of available resources
+	with RRGetScreenResources and RRGetProviders will return the new set.
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -1596,7 +1732,9 @@ doesn't handle a mandatory property correctly.
 9.1 Known properties
 
     "Backlight"			aka RR_PROPERTY_BACKLIGHT
-	Type:			int32
+	Type:			INTEGER
+	Format:			32
+	Num. items:		1
 	Flags:			-
 	Range/List:		0-x (driver specific)
 
@@ -1606,7 +1744,9 @@ doesn't handle a mandatory property correctly.
 	backlight to minimum brightness, 0 SHOULD turn the backlight off.
 
     "CloneList"			aka RR_PROPERTY_CLONE_LIST
-	Type:			int32 [2*n] / Atom pairs
+	Type:			ATOM
+	Format:			32
+	Num. items:		2*n
 	Flags:			Immutable
 	Range/List:		0-
 
@@ -1623,7 +1763,9 @@ doesn't handle a mandatory property correctly.
 	CompatibilityList.
 
     "CompatibilityList"		aka RR_PROPERTY_COMPATIBILITY_LIST
-	Type:			int32 [2*n] / Atom pairs
+	Type:			ATOM
+	Format:			32
+	Num items:		2*n
 	Flags:			Immutable
 	Range/List:		0-
 
@@ -1638,7 +1780,9 @@ doesn't handle a mandatory property correctly.
 	available, VGA-1/VGA has to list DVI-1/TMDS as well.
 
     "ConnectorNumber"		aka RR_PROPERTY_CONNECTOR_NUMBER
-	Type:			int32
+	Type:			INTEGER
+	Format:			32
+	Num items:		1
 	Flags:			Immutable, Static
 	Range/List:		0-
 
@@ -1654,7 +1798,9 @@ doesn't handle a mandatory property correctly.
 	connector types is undefined at the moment.
 
     "ConnectorType"		aka RR_PROPERTY_CONNECTOR_TYPE
-	Type:			int32 / Atom
+	Type:			ATOM
+	Format:			32
+	Num items:		1
 	Flags:			Immutable, Static
 	Range/List:		unknown VGA DVI DVI‐I DVI‐A DVI‐D HDMI Panel
 				TV TV-Composite TV-SVideo TV-Component
@@ -1673,7 +1819,9 @@ doesn't handle a mandatory property correctly.
 	RGB TV signals.
 
     "EDID"			aka RR_PROPERTY_RANDR_EDID
-	Type:			int8 [n]
+	Type:			INTEGER
+	Format:			8
+	Num items:		n
 	Flags:			Immutable
 	Range/List:		-
 
@@ -1682,7 +1830,9 @@ doesn't handle a mandatory property correctly.
 	blocks. Previously known as EdidData.
 
     "SignalFormat"		aka RR_PROPERTY_SIGNAL_FORMAT
-	Type:			int32 / Atom
+	Type:			ATOM
+	Format:			32
+	Num items:		1
 	Flags:			-
 	Range/List:		unknown VGA TMDS LVDS Composite Composite-PAL
 				Composite-NTSC Composite-SECAM SVideo
@@ -1702,7 +1852,9 @@ doesn't handle a mandatory property correctly.
 	ConnectorType.
 
     "SignalProperties"		aka RR_PROPERTY_SIGNAL_FORMAT
-	Type:			int32 [n] / Atom
+	Type:			ATOM
+	Format:			32
+	Num items:		n
 	Flags:			-
 	Range/List:		For Composite signals:
 				  NTSC NTSC-M NTSC-J NTSC-N NTSC-4.43 NTSC-film
@@ -1724,6 +1876,72 @@ doesn't handle a mandatory property correctly.
 	change this property of an output if the underlying hardware indicates
 	a signal change (e.g. TV formats).  Clients are allowed to change the
 	properties in order to select a different signal subformat.
+
+    "Border"			aka RR_PROPERTY_BORDER
+	Type:			CARDINAL
+	Format:			16
+	Num items:		0, 1, 2, or 4
+	Flags:			Immutable
+	Range/List:		0-
+
+	This property is a list of integers specifying adjustments for the edges
+	of the displayed image. How this property is applied depends on the
+	number of elements in the list:
+
+	  0 = No border is applied
+	  1 = A border of Border[0] is applied to all four sides of the image.
+	  2 = A border of Border[0] is applied to the left and right sides of
+	      the image, and a border of Border[1] is applied to the top and
+	      bottom.
+	  4 = The border dimensions are as follows:
+		Border[0]: left
+		Border[1]: top
+		Border[2]: right
+		Border[3]: bottom
+
+	Note that how many configuration dimensions are actually supported is
+	specified by the BorderDimensions property described below. If more than
+	BorderDimensions values are specified, the extra values are ignored.
+
+	These border dimensions shrink the region of pixels displayed by the
+	CRTC by the corresponding number of rows or columns, and is applied
+	after the CRTC transform. For example, a mode with a 1920x1080 active
+	region, border dimensions of [ 10, 20, 30, 40 ], and a ½x scaling
+	transform would display a rectangle of 940x510 pixels from the scanout
+	pixmap scaled to 1880x1020 raster pixels positioned at (10, 20) in
+	display raster space.
+
+	Raster pixels in the border are black.
+
+	This property is created with pending == TRUE, so changes are not
+	applied immediately and instead take effect at the next RRSetCrtcConfig.
+
+	If multiple outputs with different border settings are bound to the same
+	CRTC when the configuration is changed, the behavior is undefined.
+
+	If the length of the property is less than four when the CRTC is
+	configured, the missing values are assumed to be zero.  If the length is
+	greater than four, the extra values are ignored.
+
+	If the width of the mode is less than or equal to the sum of the left
+	and right borders, then the left and right border settings are ignored.
+	Likewise, if the height of the mode is less than or equal to the sum of
+	the top and bottom borders, the top and bottom borders are ignored.
+
+    "BorderDimensions"		aka RR_PROPERTY_BORDER_DIMENSIONS
+	Type:			CARDINAL
+	Format:			8
+	Num items:		1
+	Flags:			Immutable, Static
+	Range/List:		0, 1, 2, or 4
+
+	This property lists how many border adjustment parameters can actually
+	be used:
+
+	  0 = no borders are supported
+	  1 = a single border value is applied to all four sides of the image
+	  2 = left/right and top/bottom borders can be specified independently
+	  4 = all four borders can be specified independently
 
 
 9.2 Properties introduced with version 1.2 of the RandR extension
@@ -1752,6 +1970,13 @@ Property			Immutable	Mandatory since
 ────────			─────────	───────────────
 Backlight			no		not mandatory
 
+9.5 Properties introduced with version 1.4.0 of the RandR extension
+
+Property			Immutable	Mandatory since
+────────			─────────	───────────────
+Border				yes		not mandatory
+BorderDimensions		yes: static	not mandatory
+
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
 10. Extension Versioning
@@ -1760,7 +1985,7 @@ The RandR extension was developed in parallel with the implementation
 to ensure the feasibility of various portions of the design. As
 portions of the extension are implemented, the version number of the
 extension has changed to reflect the portions of the standard provided.
-This document describes the version 1.2 of the specification, the
+This document describes the version 1.4 of the specification, the
 partial implementations have version numbers less than that. Here's a
 list of what each version provided:
 
@@ -1786,6 +2011,8 @@ list of what each version provided:
 	     transformations.  Added panning.  Added primary outputs.
 	     Added standard properties.
 
+        1.4: Added provider objects for handling multi-GPU systems.
+
 Compatibility between 0.0 and 1.0 was *NOT* preserved, and 0.0 clients
 will fail against 1.0 servers. The wire encoding op-codes were
 changed for GetScreenInfo to ensure this failure in a relatively
@@ -1794,8 +2021,8 @@ graceful way. Version 1.1 servers and clients are cross compatible with
 compatibility from this point. Version 1.2 offers an extended model of the
 system with multiple output support. Version 1.3 adds a cheap version of
 GetScreenResources to avoid expensive DDC operations, CRTC transformations,
-panning, and the primary output concept. 1.2 and 1.3 are backward-compatible
-with 1.1.
+panning, and the primary output concept. Versions 1.2 through 1.4 are
+backward-compatible with 1.1.
 
 			      ❧❧❧❧❧❧❧❧❧❧❧
 
@@ -1863,6 +2090,10 @@ A.1 Common Types
 	0x0002	CrtcChangeNotifyMask		Added in version 1.2
 	0x0004	OutputChangeNotifyMask		Added in version 1.2
 	0x0008	OutputPropertyNotifyMask	Added in version 1.2
+	0x0010	ProviderChangeNotifyMask 	Added in version 1.4
+	0x0020	ProviderPropertyNotifyMask	Added in version 1.4
+	0x0040	ResourceChangeNotifyMask	Added in version 1.4
+
 └───
       Event select mask for RRSelectInput
 
@@ -2490,6 +2721,178 @@ A.2.2 Protocol Requests added with version 1.3
 	4	CARD32			pad4
 └───
 
+A.2.3 Protocol Requests added with version 1.4
+
+┌───
+    RRGetProviders
+	1	CARD8			major opcode
+	1	32			RandR opcode
+	2	2			length
+	4	WINDOW			window
+      ▶
+	1	1			Reply
+	1				unused
+	2	CARD16			sequence number
+	4	CARD32			length
+	4	TIMESTAMP		timestamp
+	2	p			number of Providers
+	2	CARD16			maximum masters
+	4	CARD32			flags
+	4p	LISTofPROVIDERS		providers
+
+┌───
+    RRGetProviderInfo
+	1	CARD8			major opcode
+	1	33			RandR opcode
+	2	3			length
+	4	PROVIDER		provider
+	4	TIMESTAMP		config-timestamp
+      ▶
+	1	1			Reply
+	1	RRCONFIGSTATUS		status
+	2	CARD16			sequence number
+	4	1+c+o+(a*2)+(n+p)/4		reply length
+	4	TIMESTATMP		timestamp
+	4	CARD32			capabilites
+	2	c			number of crtcs
+	2	o 			number of outputs
+	2	a 			number of associated providers
+	2	n			length of name
+	4c	LISTofCRTC		crtcs
+	4o	LISTofOUTPUT		outputs
+	4a	LISTofPROVIDER		associated providers
+	4a	CARD32			associated provider capability
+	n	STRING8			name
+	p				unused, p=pad(n)
+
+┌───
+    RRSetProviderOffloadSink
+	1	CARD8			major opcode
+	1	34			RandR opcode
+	2	2			length
+	4	PROVIDER		provider
+	4	PROVIDER		offload sink provider
+	4	TIMESTAMP		timestamp
+┌───
+    RRSetProviderOutputSource
+	1	CARD8			major opcode
+	1	35			RandR opcode
+	2	2			length
+	4	PROVIDER		provider
+	4	PROVIDER		output source provider
+	4	TIMESTAMP		timestamp
+
+┌───
+    RRListProviderProperties
+	1	CARD8			major opcode
+	1	36			RandR opcode
+	2	2			length
+	4	PROVIDER		provider
+      ▶
+	1	1			Reply
+	1				unused
+	2	CARD16			sequence number
+	4	n			reply length
+	2	n			number of ATOMs in atoms
+	22				unused
+	4n	LISTofATOM		atoms
+└───
+┌───
+    RRQueryProviderProperty
+	1	CARD8			major opcode
+	1	37			RandR opcode
+	2	3			request length
+	4	PROVIDER		provider
+	4	ATOM			property
+      ▶
+	1	1			Reply
+	1				unused
+	2	CARD16			sequence number
+	4	n			reply length
+	1	BOOL			pending
+	1	BOOL			range
+	1	BOOL			immutable
+	21				unused
+	4n	LISTofINT32		valid values
+└───
+┌───
+    RRConfigureProviderProperty
+	1	CARD8			major opcode
+	1	38			RandR opcode
+	2	4+n			request length
+	4	PROVIDER		provider
+	4	ATOM			property
+	1	BOOL			pending
+	1	BOOL			range
+	2				unused
+	4n	LISTofINT32		valid values
+└───
+┌───
+    RRChangeProviderProperty
+	1	CARD8			major opcode
+	1	39			RandR opcode
+	2	6+(n+p)/4		request length
+	4	PROVIDER		provider
+	4	ATOM			property
+	4	ATOM			type
+	1	CARD8			format
+	1				mode
+		0	Replace
+		1	Prepend
+		2	Append
+	2				unused
+	4	CARD32			length of data in format units
+					(= n for format = 8)
+					(= n/2 for format = 16)
+					(= n/4 for format = 32)
+	n	LISTofBYTE		data
+					(n is a multiple of 2 for format = 16)
+					(n is a multiple of 4 for format = 32)
+	p				unused, p=pad(n)
+└───
+┌───
+    RRDeleteProviderProperty
+	1	CARD8			major opcode
+	1	40			RandR opcode
+	2	3			request length
+	4	PROVIDER		provider
+	4	ATOM			property
+└───
+┌───
+    RRGetProviderProperty
+	1	CARD8			major opcode
+	1	41			RandR opcode
+	2	7			request length
+	4	PROVIDER		provider
+	4	ATOM			property
+	4	ATOM			type
+		0	AnyPropertyType
+	4	CARD32			long-offset
+	4	CARD32			long-length
+	1	BOOL			delete
+	1	BOOL			pending
+	2				unused
+      ▶
+	1	1			Reply
+	1	CARD8			format
+	2	CARD16			sequence number
+	4	(n+p)/4			reply length
+	4	ATOM			type
+		0	None
+	4	CARD32			bytes-after
+	4	CARD32			length of value in format units
+					(= 0 for format = 0)
+					(= n for format = 8)
+					(= n/2 for format = 16)
+					(= n/4 for format = 32)
+	12				unused
+	n	LISTofBYTE		value
+					(n is zero for format = 0)
+					(n is a multiple of 2 for format = 16)
+					(n is a multiple of 4 for format = 32)
+	p				unused, p=pad(n)
+└───
+
 A.3 Protocol Events
 
 ┌───
@@ -2557,6 +2960,40 @@ A.3.1 Protocol Events added with version 1.2
 	11				unused
 └───
 
+A.3.2 Protocol Events added with version 1.4
+┌───
+    RRProviderChangeNotify
+	1	Base + 1		code
+	1	1			sub-code
+	2	CARD16			sequence number
+	4	TIMESTAMP		timestamp
+	4	WINDOW			request window
+	4	PROVIDER		provider affected
+	16				unused
+└───
+┌───
+    RRProviderPropertyNotify
+	1	Base + 1		code
+	1	2			sub-code
+	2	CARD16			sequence number
+	4	WINDOW			window
+	4	PROVIDER		provider
+	4	ATOM			atom
+	4	TIMESTAMP		time
+	1				state
+		0	NewValue
+		1	Deleted
+	11				unused
+└───
+┌───
+    RRResourceChangeNotify
+	1	Base + 1		code
+	1	2			sub-code
+	2	CARD16			sequence number
+	4	TIMESTAMP		time
+	4	WINDOW			window
+	20				unused
+└───
 A.4 Protocol Errors
 
 ┌───
@@ -2564,6 +3001,7 @@ A.4 Protocol Errors
 	Base + 0		Output
 	Base + 1		Crtc
 	Base + 2		Mode
+	Base + 3		Provider
 └───
 
 Bibliography
