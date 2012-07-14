@@ -1,6 +1,10 @@
 x11proto-randr (1.4.0-1) UNRELEASED; urgency=low
 
+  [ Maarten Lankhorst ]
   * New upstream release.
+
+  [ Julien Cristau ]
+  * Add Red Hat copyright notice to debian/copyright.
 
  -- Maarten Lankhorst <maarten.lankhorst@canonical.com>  Thu, 12 Jul 2012 15:25:04 +0200
 
