@@ -1,3 +1,9 @@
+x11proto-randr (1.4.0-2) UNRELEASED; urgency=low
+
+  * debian/rules: clean doesn't need dh_testroot.
+
+ -- Julien Cristau <jcristau@debian.org>  Sat, 14 Jul 2012 15:35:05 +0200
+
 x11proto-randr (1.4.0-1) experimental; urgency=low
 
   [ Maarten Lankhorst ]
